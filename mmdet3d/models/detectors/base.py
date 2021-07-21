@@ -61,6 +61,7 @@ class Base3DDetector(BaseDetector):
             return self.forward_test(**kwargs)
 
     def show_results(self, data, result, out_dir):
+        #print("I amm here")
         """Results visualization.
 
         Args:
@@ -69,6 +70,7 @@ class Base3DDetector(BaseDetector):
             out_dir (str): Output directory of visualization result.
         """
         for batch_id in range(len(result)):
+            #print("I am here")
             if isinstance(data['points'][0], DC):
                 points = data['points'][0]._data[0][batch_id].numpy()
             elif mmcv.is_list_of(data['points'][0], torch.Tensor):

@@ -1,5 +1,6 @@
 import mmcv
 import torch
+import inspect
 
 
 def single_gpu_test(model, data_loader, show=False, out_dir=None):
@@ -27,9 +28,12 @@ def single_gpu_test(model, data_loader, show=False, out_dir=None):
     for i, data in enumerate(data_loader):
         with torch.no_grad():
             result = model(return_loss=False, rescale=True, **data)
+        #print(result)
+        #print(data)
 
         if show:
             model.module.show_results(data, result, out_dir)
+            #print(inspect.getsourcefile(model.module.show_results))
 
         results.extend(result)
 

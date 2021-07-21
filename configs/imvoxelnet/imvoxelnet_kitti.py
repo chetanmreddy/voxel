@@ -66,8 +66,8 @@ test_cfg = dict(
 img_norm_cfg = dict(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 
 dataset_type = 'KittiMultiViewDataset'
-data_root = 'data/kitti/'
-class_names = ['Car']
+data_root = '/cmudi001-nx-1/mmdetection3d/data/kitti/'
+class_names = ['fish']
 input_modality = dict(use_lidar=False, use_camera=True)
 point_cloud_range = [0, -39.68, -3, 69.12, 39.68, 1]
 
@@ -78,7 +78,7 @@ train_pipeline = [
         n_images=1,
         transforms=[
             dict(type='LoadImageFromFile'),
-            dict(type='RandomFlip'),
+            #dict(type='RandomFlip'),
             dict(
                 type='Resize',
                 img_scale=[(1173, 352), (1387, 416)],
@@ -105,7 +105,7 @@ test_pipeline = [
     dict(type='Collect3D', keys=['img'])]
 
 data = dict(
-    samples_per_gpu=4,
+    samples_per_gpu=2,
     workers_per_gpu=3,
     train=dict(
         type='RepeatDataset',
@@ -149,7 +149,7 @@ optimizer = dict(
         custom_keys={'backbone': dict(lr_mult=0.1, decay_mult=1.0)}))
 optimizer_config = dict(grad_clip=dict(max_norm=35., norm_type=2))
 lr_config = dict(policy='step', step=[8, 11])
-total_epochs = 12
+total_epochs = 3
 
 checkpoint_config = dict(interval=1, max_keep_ckpts=1)
 log_config = dict(

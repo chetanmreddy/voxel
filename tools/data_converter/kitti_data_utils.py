@@ -7,10 +7,11 @@ from skimage import io
 
 
 def get_image_index_str(img_idx, use_prefix_id=False):
-    if use_prefix_id:
-        return '{:07d}'.format(img_idx)
-    else:
-        return '{:06d}'.format(img_idx)
+    return '{}'.format(img_idx)  
+    #if use_prefix_id:
+    #    return '{:07d}'.format(img_idx)
+    #else:
+    #    return '{}'.format(img_idx)
 
 
 def get_kitti_info_path(idx,
@@ -22,7 +23,9 @@ def get_kitti_info_path(idx,
                         exist_check=True,
                         use_prefix_id=False):
     img_idx_str = get_image_index_str(idx, use_prefix_id)
-    img_idx_str += file_tail
+    img_idx_str = img_idx_str.strip() + file_tail   
+    #img_idx_str += file_tail
+    #print(img_idx_str)
     prefix = Path(prefix)
     if training:
         file_path = Path('training') / info_type / img_idx_str
@@ -43,7 +46,7 @@ def get_image_path(idx,
                    exist_check=True,
                    info_type='image_2',
                    use_prefix_id=False):
-    return get_kitti_info_path(idx, prefix, info_type, '.png', training,
+    return get_kitti_info_path(idx, prefix, info_type, '.jpeg', training,
                                relative_path, exist_check, use_prefix_id)
 
 
@@ -211,19 +214,19 @@ def get_kitti_image_info(path,
                 lines = f.readlines()
             P0 = np.array([float(info) for info in lines[0].split(' ')[1:13]
                            ]).reshape([3, 4])
-            P1 = np.array([float(info) for info in lines[1].split(' ')[1:13]
-                           ]).reshape([3, 4])
-            P2 = np.array([float(info) for info in lines[2].split(' ')[1:13]
-                           ]).reshape([3, 4])
-            P3 = np.array([float(info) for info in lines[3].split(' ')[1:13]
-                           ]).reshape([3, 4])
+            #P1 = np.array([float(info) for info in lines[1].split(' ')[1:13]
+            #               ]).reshape([3, 4])
+            #P2 = np.array([float(info) for info in lines[2].split(' ')[1:13]
+            #               ]).reshape([3, 4])
+            #P3 = np.array([float(info) for info in lines[3].split(' ')[1:13]
+            #               ]).reshape([3, 4])
             if extend_matrix:
                 P0 = _extend_matrix(P0)
-                P1 = _extend_matrix(P1)
-                P2 = _extend_matrix(P2)
-                P3 = _extend_matrix(P3)
+                #P1 = _extend_matrix(P1)
+                #P2 = _extend_matrix(P2)
+                #P3 = _extend_matrix(P3)
             R0_rect = np.array([
-                float(info) for info in lines[4].split(' ')[1:10]
+                float(info) for info in lines[1].split(' ')[1:10]
             ]).reshape([3, 3])
             if extend_matrix:
                 rect_4x4 = np.zeros([4, 4], dtype=R0_rect.dtype)
@@ -233,21 +236,21 @@ def get_kitti_image_info(path,
                 rect_4x4 = R0_rect
 
             Tr_velo_to_cam = np.array([
-                float(info) for info in lines[5].split(' ')[1:13]
+                float(info) for info in lines[2].split(' ')[1:13]
             ]).reshape([3, 4])
-            Tr_imu_to_velo = np.array([
-                float(info) for info in lines[6].split(' ')[1:13]
-            ]).reshape([3, 4])
+            #Tr_imu_to_velo = np.array([
+            #    float(info) for info in lines[6].split(' ')[1:13]
+            #]).reshape([3, 4])
             if extend_matrix:
                 Tr_velo_to_cam = _extend_matrix(Tr_velo_to_cam)
-                Tr_imu_to_velo = _extend_matrix(Tr_imu_to_velo)
+            #    Tr_imu_to_velo = _extend_matrix(Tr_imu_to_velo)
             calib_info['P0'] = P0
-            calib_info['P1'] = P1
-            calib_info['P2'] = P2
-            calib_info['P3'] = P3
+            #calib_info['P1'] = P1
+            #calib_info['P2'] = P2
+            #calib_info['P3'] = P3
             calib_info['R0_rect'] = rect_4x4
             calib_info['Tr_velo_to_cam'] = Tr_velo_to_cam
-            calib_info['Tr_imu_to_velo'] = Tr_imu_to_velo
+            #calib_info['Tr_imu_to_velo'] = Tr_imu_to_velo
             info['calib'] = calib_info
 
         if annotations is not None:

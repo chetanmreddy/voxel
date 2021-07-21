@@ -90,49 +90,75 @@ class KittiDataset(Custom3DDataset):
         pts_filename = osp.join(self.root_split, self.pts_prefix,
                                 f'{idx:06d}.bin')
         return pts_filename
-
     def get_data_info(self, index):
-        """Get data info according to the given index.
-
-        Args:
-            index (int): Index of the sample data to get.
-
-        Returns:
-            dict: Data information that will be passed to the data \
-                preprocessing pipelines. It includes the following keys:
-
-                - sample_idx (str): Sample index.
-                - pts_filename (str): Filename of point clouds.
-                - img_prefix (str | None): Prefix of image files.
-                - img_info (dict): Image info.
-                - lidar2img (list[np.ndarray], optional): Transformations \
-                    from lidar to different cameras.
-                - ann_info (dict): Annotation info.
-        """
         info = self.data_infos[index]
         sample_idx = info['image']['image_idx']
-        img_filename = os.path.join(self.data_root,
-                                    info['image']['image_path'])
+        img_filename = os.path.join(self.data_root, info['image']['image_path'])
 
-        # TODO: consider use torch.Tensor only
         rect = info['calib']['R0_rect'].astype(np.float32)
         Trv2c = info['calib']['Tr_velo_to_cam'].astype(np.float32)
-        P2 = info['calib']['P2'].astype(np.float32)
-        lidar2img = P2 @ rect @ Trv2c
+        P2 = info['calib']['P0'].astype(np.float32)
+        extrinsic = rect @ Trv2c
+        extrinsic[:3, 3] += np.linalg.inv(P2[:3, :3]) @ P2[:3, 3]
+        intrinsic = np.copy(P2)
+        intrinsic[:3, 3] = 0
 
-        pts_filename = self._get_pts_filename(sample_idx)
         input_dict = dict(
             sample_idx=sample_idx,
-            pts_filename=pts_filename,
-            img_prefix=None,
-            img_info=dict(filename=img_filename),
-            lidar2img=lidar2img)
+            img_prefix=[None],
+            img_info=[dict(filename=img_filename)],
+            lidar2img=dict(
+                extrinsic=[extrinsic],
+                intrinsic=intrinsic
+            )
+        )
 
         if not self.test_mode:
             annos = self.get_ann_info(index)
             input_dict['ann_info'] = annos
-
         return input_dict
+#     def get_data_info(self, index):
+#        """Get data info according to the given index.
+#
+#        Args:
+#            index (int): Index of the sample data to get.
+#
+#        Returns:
+#            dict: Data information that will be passed to the data \
+#                preprocessing pipelines. It includes the following keys:
+#
+#                - sample_idx (str): Sample index.
+#                - pts_filename (str): Filename of point clouds.
+#                - img_prefix (str | None): Prefix of image files.
+#                - img_info (dict): Image info.
+#                - lidar2img (list[np.ndarray], optional): Transformations \
+#                    from lidar to different cameras.
+#                - ann_info (dict): Annotation info.
+#        """
+#        info = self.data_infos[index]
+#        sample_idx = info['image']['image_idx']
+#        img_filename = os.path.join(self.data_root,
+#                                    info['image']['image_path'])
+#
+#        # TODO: consider use torch.Tensor only
+#        rect = info['calib']['R0_rect'].astype(np.float32)
+#        Trv2c = info['calib']['Tr_velo_to_cam'].astype(np.float32)
+#        P2 = info['calib']['P0'].astype(np.float32)
+#        lidar2img = P2 @ rect @ Trv2c
+#
+#        pts_filename = self._get_pts_filename(sample_idx)
+#        input_dict = dict(
+#            sample_idx=sample_idx,
+#            pts_filename=pts_filename,
+#            img_prefix=None,
+#            img_info=dict(filename=img_filename),
+#            lidar2img=lidar2img)
+#
+#        if not self.test_mode:
+#            annos = self.get_ann_info(index)
+#            input_dict['ann_info'] = annos
+#
+#        return input_dict
 
     def get_ann_info(self, index):
         """Get annotation info according to the given index.
@@ -627,7 +653,7 @@ class KittiDataset(Custom3DDataset):
 
         rect = info['calib']['R0_rect'].astype(np.float32)
         Trv2c = info['calib']['Tr_velo_to_cam'].astype(np.float32)
-        P2 = info['calib']['P2'].astype(np.float32)
+        P2 = info['calib']['P0'].astype(np.float32)
         img_shape = info['image']['image_shape']
         P2 = box_preds.tensor.new_tensor(P2)
 

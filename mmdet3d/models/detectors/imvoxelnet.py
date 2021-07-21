@@ -109,6 +109,7 @@ class ImVoxelNet(BaseDetector):
         pass
 
     def show_results(self, *args, **kwargs):
+        #print("I am here")
         pass
 
     @staticmethod

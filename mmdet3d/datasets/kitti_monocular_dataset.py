@@ -15,7 +15,7 @@ class KittiMultiViewDataset(MultiViewMixin, KittiDataset):
 
         rect = info['calib']['R0_rect'].astype(np.float32)
         Trv2c = info['calib']['Tr_velo_to_cam'].astype(np.float32)
-        P2 = info['calib']['P2'].astype(np.float32)
+        P2 = info['calib']['P0'].astype(np.float32)
         extrinsic = rect @ Trv2c
         extrinsic[:3, 3] += np.linalg.inv(P2[:3, :3]) @ P2[:3, 3]
         intrinsic = np.copy(P2)

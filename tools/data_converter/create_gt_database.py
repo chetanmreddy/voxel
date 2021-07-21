@@ -149,18 +149,18 @@ def create_groundtruth_database(dataset_class_name,
             test_mode=False,
             split='training',
             modality=dict(
-                use_lidar=True,
+                use_lidar=False,
                 use_depth=False,
-                use_lidar_intensity=True,
+                use_lidar_intensity=False,
                 use_camera=with_mask,
             ),
             pipeline=[
-                dict(
-                    type='LoadPointsFromFile',
-                    coord_type='LIDAR',
-                    load_dim=4,
-                    use_dim=4,
-                    file_client_args=file_client_args),
+                #dict(
+                #    type='LoadPointsFromFile',
+                #    coord_type='LIDAR',
+                #    load_dim=4,
+                #    use_dim=4,
+                #    file_client_args=file_client_args),
                 dict(
                     type='LoadAnnotations3D',
                     with_bbox_3d=True,
@@ -224,6 +224,7 @@ def create_groundtruth_database(dataset_class_name,
     mmcv.mkdir_or_exist(database_save_path)
     all_db_infos = dict()
     if with_mask:
+        print("I am here")
         coco = COCO(osp.join(data_path, mask_anno_path))
         imgIds = coco.getImgIds()
         file2id = dict()
@@ -238,7 +239,8 @@ def create_groundtruth_database(dataset_class_name,
         example = dataset.pipeline(input_dict)
         annos = example['ann_info']
         image_idx = example['sample_idx']
-        points = example['points'].tensor.numpy()
+        image_idx = image_idx.strip()
+        #points = example['points'].tensor.numpy()
         gt_boxes_3d = annos['gt_bboxes_3d'].tensor.numpy()
         names = annos['gt_names']
         group_dict = dict()
@@ -251,7 +253,8 @@ def create_groundtruth_database(dataset_class_name,
             difficulty = annos['difficulty']
 
         num_obj = gt_boxes_3d.shape[0]
-        point_indices = box_np_ops.points_in_rbbox(points, gt_boxes_3d)
+        #print(num_obj)
+        #point_indices = box_np_ops.points_in_rbbox(points, gt_boxes_3d)
 
         if with_mask:
             # prepare masks
@@ -286,12 +289,13 @@ def create_groundtruth_database(dataset_class_name,
 
         for i in range(num_obj):
             filename = f'{image_idx}_{names[i]}_{i}.bin'
+            #print(filename)
             abs_filepath = osp.join(database_save_path, filename)
             rel_filepath = osp.join(f'{info_prefix}_gt_database', filename)
 
             # save point clouds and image patches for each object
-            gt_points = points[point_indices[:, i]]
-            gt_points[:, :3] -= gt_boxes_3d[i, :3]
+            #gt_points = points[point_indices[:, i]]
+            #gt_points[:, :3] -= gt_boxes_3d[i, :3]
 
             if with_mask:
                 if object_masks[i].sum() == 0 or not valid_inds[i]:
@@ -302,8 +306,8 @@ def create_groundtruth_database(dataset_class_name,
                 mmcv.imwrite(object_img_patches[i], img_patch_path)
                 mmcv.imwrite(object_masks[i], mask_patch_path)
 
-            with open(abs_filepath, 'w') as f:
-                gt_points.tofile(f)
+            #with open(abs_filepath, 'w') as f:
+            #    gt_points.tofile(f)
 
             if (used_classes is None) or names[i] in used_classes:
                 db_info = {
@@ -312,7 +316,7 @@ def create_groundtruth_database(dataset_class_name,
                     'image_idx': image_idx,
                     'gt_idx': i,
                     'box3d_lidar': gt_boxes_3d[i],
-                    'num_points_in_gt': gt_points.shape[0],
+                    #'num_points_in_gt': gt_points.shape[0],
                     'difficulty': difficulty[i],
                 }
                 local_group_id = group_ids[i]

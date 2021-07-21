@@ -137,6 +137,7 @@ def main():
 
     rank, _ = get_dist_info()
     if rank == 0:
+        #print("here also")
         if args.out:
             print(f'\nwriting results to {args.out}')
             mmcv.dump(outputs, args.out)
@@ -146,6 +147,7 @@ def main():
         if args.eval:
             dataset.evaluate(outputs, args.eval, **kwargs)
         if args.show:
+            #print("here only")
             dataset.show(outputs, args.show_dir)
 
 

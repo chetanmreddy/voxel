@@ -110,6 +110,7 @@ class MultiViewMixin:
         assert out_dir is not None, 'Expect out_dir, got none.'
         for i, result in enumerate(results):
             info = self.get_data_info(i)
+            #print(i)
             for j in range(len(info['img_info'])):
                 img = skimage.io.imread(info['img_info'][j]['filename'])
                 extrinsic = info['lidar2img']['extrinsic'][j]

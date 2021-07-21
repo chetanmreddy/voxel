@@ -34,7 +34,7 @@ def convert_to_kitti_info_version2(info):
 def _read_imageset_file(path):
     with open(path, 'r') as f:
         lines = f.readlines()
-    return [int(line) for line in lines]
+    return [line for line in lines]
 
 
 def _calculate_num_points_in_gt(data_path,
@@ -105,22 +105,22 @@ def create_kitti_info_file(data_path,
     kitti_infos_train = get_kitti_image_info(
         data_path,
         training=True,
-        velodyne=True,
+        velodyne=False,
         calib=True,
         image_ids=train_img_ids,
         relative_path=relative_path)
-    _calculate_num_points_in_gt(data_path, kitti_infos_train, relative_path)
+    #_calculate_num_points_in_gt(data_path, kitti_infos_train, relative_path)
     filename = save_path / f'{pkl_prefix}_infos_train.pkl'
     print(f'Kitti info train file is saved to {filename}')
     mmcv.dump(kitti_infos_train, filename)
     kitti_infos_val = get_kitti_image_info(
         data_path,
         training=True,
-        velodyne=True,
+        velodyne=False,
         calib=True,
         image_ids=val_img_ids,
         relative_path=relative_path)
-    _calculate_num_points_in_gt(data_path, kitti_infos_val, relative_path)
+    #_calculate_num_points_in_gt(data_path, kitti_infos_val, relative_path)
     filename = save_path / f'{pkl_prefix}_infos_val.pkl'
     print(f'Kitti info val file is saved to {filename}')
     mmcv.dump(kitti_infos_val, filename)
@@ -132,7 +132,7 @@ def create_kitti_info_file(data_path,
         data_path,
         training=False,
         label_info=False,
-        velodyne=True,
+        velodyne=False,
         calib=True,
         image_ids=test_img_ids,
         relative_path=relative_path)

@@ -56,7 +56,7 @@ class KittiSetOrigin:
 @PIPELINES.register_module()
 class KittiRandomFlip:
     def __call__(self, results):
-        if results['flip']:
+        if 'flip' in results:
             results['lidar2img']['intrinsic'][0, 2] = -results['lidar2img']['intrinsic'][0, 2] + \
                                                       results['ori_shape'][1]
             flip_matrix_0 = np.eye(4, dtype=np.float32)
@@ -75,6 +75,8 @@ class KittiRandomFlip:
             alpha_flip = np.arctan2(center_flip[:, 0], -center_flip[:, 1]) + phi
             boxes_flip = np.concatenate([center_flip, boxes[:, 3:6], alpha_flip[:, None]], 1)
             results['gt_bboxes_3d'] = results['box_type_3d'](boxes_flip)
+        else:
+            return results
         return results
 
 

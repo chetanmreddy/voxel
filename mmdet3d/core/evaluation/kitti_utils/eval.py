@@ -84,6 +84,9 @@ def clean_data(gt_anno, dt_anno, current_class, difficulty):
 def image_box_overlap(boxes, query_boxes, criterion=-1):
     N = boxes.shape[0]
     K = query_boxes.shape[0]
+    #print("here")
+    #print(N)
+    #print(K)
     overlaps = np.zeros((N, K), dtype=boxes.dtype)
     for k in range(K):
         qbox_area = ((query_boxes[k, 2] - query_boxes[k, 0]) *
@@ -667,7 +670,7 @@ def kitti_eval(gt_annos,
                             [0.5, 0.25, 0.25, 0.5, 0.25]])
     min_overlaps = np.stack([overlap_0_7, overlap_0_5], axis=0)  # [2, 3, 5]
     class_to_name = {
-        0: 'Car',
+        0: 'fish',
         1: 'Pedestrian',
         2: 'Cyclist',
         3: 'Van',
